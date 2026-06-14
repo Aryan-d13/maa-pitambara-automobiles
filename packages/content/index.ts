@@ -75,8 +75,8 @@ export function getRedisClient(): Redis | null {
 // 2. Vercel KV REST Client Setup
 export function isKVConfigured(): boolean {
   return !!(
-    (process.env.KV_URL || process.env.KV_REST_API_URL) &&
-    process.env.KV_REST_API_TOKEN
+    (process.env.KV_URL || process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL) &&
+    (process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN)
   );
 }
 
@@ -84,8 +84,8 @@ let kvClient: ReturnType<typeof createClient> | null = null;
 export function getKVClient() {
   if (!isKVConfigured()) return null;
   if (!kvClient) {
-    const url = process.env.KV_REST_API_URL || process.env.KV_URL!;
-    const token = process.env.KV_REST_API_TOKEN!;
+    const url = process.env.KV_REST_API_URL || process.env.KV_URL || process.env.UPSTASH_REDIS_REST_URL!;
+    const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN!;
     kvClient = createClient({ url, token });
   }
   return kvClient;
