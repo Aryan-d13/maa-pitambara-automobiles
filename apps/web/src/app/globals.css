@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --nh-blue: #0051BA;
+  --nh-blue-hover: #003e92;
+  --wa-green: #25D366;
+  --wa-green-hover: #1ebd5b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-nh-blue: var(--nh-blue);
+  --color-nh-blue-hover: var(--nh-blue-hover);
+  --color-wa-green: var(--wa-green);
+  --color-wa-green-hover: var(--wa-green-hover);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Micro-animations and highlights */
+.hover-scale {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+.hover-scale:hover {
+  transform: translateY(-2px) scale(1.015);
+}
+
+.glow-blue {
+  box-shadow: 0 4px 20px rgba(0, 81, 186, 0.2);
+}
+
+.glow-green {
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.25);
+}
+
+/* Sticky bottom nav padding helper */
+.pb-safe-bottom {
+  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Smooth scroll for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Slow pulse for badges */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}

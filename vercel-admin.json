@@ -1,0 +1,5 @@
+{
+  "buildCommand": "pnpm --filter @mp-auto/admin build",
+  "outputDirectory": "apps/admin/.next",
+  "framework": "nextjs"
+}

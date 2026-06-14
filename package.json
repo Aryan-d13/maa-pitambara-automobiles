@@ -1,0 +1,18 @@
+{
+  "name": "maa-pitambara-automobiles",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter \"@mp-auto/*\" --parallel dev",
+    "build": "pnpm --filter \"@mp-auto/*\" build",
+    "start": "pnpm --filter \"@mp-auto/*\" start"
+  },
+  "devDependencies": {
+    "next": "16.2.9",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  }
+}
