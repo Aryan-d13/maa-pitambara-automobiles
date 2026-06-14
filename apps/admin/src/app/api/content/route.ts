@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { readContent, writeContent, SiteContent } from "@mp-auto/content";
+import fs from "fs/promises";
+import { readContent, writeContent, SiteContent, getContentPath } from "@mp-auto/content";
 
 // Force Next.js API routes to execute dynamically on every request
 export const dynamic = "force-dynamic";
@@ -20,6 +21,19 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    
+    // Handle database reset/sync with local json file
+    if (body && body.action === "reset") {
+      try {
+        const filePath = getContentPath();
+        const fileContent = await fs.readFile(filePath, "utf-8");
+        const localData = JSON.parse(fileContent);
+        await writeContent(localData);
+        return NextResponse.json({ success: true, content: localData, message: "Database reset to file template defaults." });
+      } catch (err: any) {
+        return NextResponse.json({ error: "Failed to read local configuration template: " + err.message }, { status: 500 });
+      }
+    }
     
     // Strict schema structure validation
     if (!body || typeof body !== "object") {

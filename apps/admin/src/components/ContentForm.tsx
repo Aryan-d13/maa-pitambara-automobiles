@@ -232,6 +232,40 @@ export default function ContentForm({ initialContent }: ContentFormProps) {
     }
   };
 
+  // Reset database from local defaults
+  const handleResetDatabase = async () => {
+    if (
+      !confirm(
+        "Are you sure you want to overwrite your database with the local file defaults? This will restore all 6 standard models and erase any unsaved test records."
+      )
+    ) {
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const response = await fetch("/api/content", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action: "reset" }),
+      });
+
+      const result = await response.json();
+      if (response.ok && result.success) {
+        setContent(result.content);
+        setSelectedTractorIndex(0);
+        showToast("success", "🔄 Database synchronized from local JSON successfully!");
+      } else {
+        showToast("error", result.error || "Failed to sync database.");
+      }
+    } catch (err: any) {
+      showToast("error", "Error syncing database: " + err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const activeTractor = content.tractors[selectedTractorIndex];
 
   return (
@@ -310,6 +344,17 @@ export default function ContentForm({ initialContent }: ContentFormProps) {
             </div>
           </button>
         </nav>
+
+        {/* Reset Database Trigger Button */}
+        <div className="p-4 border-t border-[#2a2a3a]">
+          <button
+            type="button"
+            onClick={handleResetDatabase}
+            className="w-full py-2 bg-[#2a2a38] hover:bg-[#33334a] text-xs font-bold text-[#9898b0] hover:text-white rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-[#2a2a3a]"
+          >
+            <span>🔄</span> Sync DB with Local JSON
+          </button>
+        </div>
 
         {/* Sidebar Footer Stats */}
         <div className="p-5 border-t border-[#2a2a3a] bg-[#0c0c12] text-[11px] text-[#686882] space-y-2.5">
