@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "pnpm --filter \"@mp-auto/*\" --parallel dev",
-    "build": "pnpm --filter \"@mp-auto/*\" build",
+    "build": "pnpm --filter \"@mp-auto/*\" build && node -e \"const fs = require('fs'); fs.cpSync('apps/web/.next', '.next', { recursive: true, force: true })\"",
     "start": "pnpm --filter \"@mp-auto/*\" start"
   },
   "devDependencies": {
