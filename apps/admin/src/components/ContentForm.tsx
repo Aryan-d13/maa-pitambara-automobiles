@@ -81,7 +81,7 @@ export default function ContentForm({ initialContent }: ContentFormProps) {
       name: "New Holland Model",
       hp: "50",
       price: "Price on Request",
-      imageUrl: "/images/new_holland_3630.png",
+      imageUrl: "/images/new_holland_3630.webp",
       engine: "",
       cylinders: "",
       displacement: "",
@@ -474,7 +474,7 @@ export default function ContentForm({ initialContent }: ContentFormProps) {
                             alt={tractor.name}
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = "/images/new_holland_3630.png";
+                              (e.target as HTMLImageElement).src = "/images/new_holland_3630.webp";
                             }}
                           />
                         </div>
@@ -589,7 +589,7 @@ export default function ContentForm({ initialContent }: ContentFormProps) {
                               alt={activeTractor.name}
                               className="w-full h-full object-cover absolute inset-0 z-0"
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src = "/images/new_holland_3630.png";
+                                (e.target as HTMLImageElement).src = "/images/new_holland_3630.webp";
                               }}
                             />
                             
@@ -641,7 +641,7 @@ export default function ContentForm({ initialContent }: ContentFormProps) {
                               value={activeTractor.imageUrl}
                               onChange={(e) => handleTractorChange(selectedTractorIndex, "imageUrl", e.target.value)}
                               className="admin-input font-mono text-xs !py-1.5 bg-[#12121a]"
-                              placeholder="/images/nh_3630.png"
+                              placeholder="/images/new_holland_3630.webp"
                               required
                             />
                           </div>

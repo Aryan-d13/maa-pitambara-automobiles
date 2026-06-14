@@ -74,7 +74,7 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/images/hero_banner.png" 
+            src="/images/hero_banner.webp" 
             alt="" 
             className="w-full h-full object-cover"
           />
@@ -228,7 +228,7 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
             </div>
             <div className="w-full md:w-2/5 aspect-video md:aspect-auto relative overflow-hidden">
               <img 
-                src="/images/service_workshop.png" 
+                src="/images/service_workshop.webp" 
                 alt={lang === 'hi' ? 'सर्विस वर्कशॉप' : 'Service Workshop'}
                 className="w-full h-full object-cover"
               />
@@ -254,7 +254,7 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
           <div className="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-200">
             <div className="relative aspect-[3/1] w-full">
               <img 
-                src="/images/spare_parts.png" 
+                src="/images/spare_parts.webp" 
                 alt={lang === 'hi' ? 'असली स्पेयर पार्ट्स' : 'Genuine Spare Parts'} 
                 className="w-full h-full object-cover"
               />
@@ -274,6 +274,39 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
           </div>
         </section>
 
+        {/* Recent Deliveries */}
+        <section className="space-y-6">
+          <div className="text-center md:text-left">
+            <h2 className="text-3xl font-black text-slate-800 tracking-tight flex items-center justify-center md:justify-start gap-3">
+              <span>🤝</span>
+              <span>{lang === 'hi' ? 'खुशहाल किसान परिवार' : 'Happy Farmers Family'}</span>
+            </h2>
+            <div className="h-1.5 w-24 bg-[#0051BA] rounded-full mx-auto md:mx-0 mt-2" />
+          </div>
+          <div className="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-200 flex flex-col md:flex-row items-center">
+            <div className="w-full md:w-1/2 aspect-video md:aspect-auto relative overflow-hidden">
+              <img 
+                src="/images/delivery_ceremony.webp" 
+                alt={lang === 'hi' ? 'किसान डिलीवरी समारोह' : 'Farmer Delivery Celebration'}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="flex-1 p-6 sm:p-8 md:p-10 space-y-4">
+              <span className="px-3 py-1 bg-yellow-400/20 text-yellow-800 rounded-full text-sm font-extrabold tracking-wide uppercase">
+                {lang === 'hi' ? "सच्चा भरोसा" : "Trusted Relationship"}
+              </span>
+              <h3 className="text-2xl font-black text-slate-800">
+                {lang === 'hi' ? 'हर किसान का सपना, सच होता अपना' : 'Fulfilling the Dreams of Farmers'}
+              </h3>
+              <p className="text-slate-600 font-medium text-base leading-relaxed">
+                {lang === 'hi' 
+                  ? 'शाजापुर और आसपास के गांवों के सैकड़ों किसानों ने माँ पीताम्बरा ऑटोमोबाइल्स और न्यू हॉलैंड ट्रैक्टर्स पर अपना अटूट भरोसा जताया है। हम ट्रैक्टर डिलीवरी पर एक विशेष समारोह मनाते हैं और हर किसान परिवार का स्वागत करते हैं।'
+                  : 'Hundreds of farmers across Shajapur and nearby villages have placed their trust in Maa Pitambara Automobiles and New Holland Tractors. We celebrate every tractor delivery with a special ceremony, welcoming each farming family into our fold.'}
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Visit Us / Location */}
         <section id="location" className="space-y-6">
           <div className="text-center md:text-left">
@@ -288,7 +321,7 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
           <div className="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-200">
             <div className="relative aspect-[3/1] w-full">
               <img 
-                src="/images/showroom_exterior.png" 
+                src="/images/showroom_exterior.webp" 
                 alt={lang === 'hi' ? 'शोरूम' : 'Showroom'}
                 className="w-full h-full object-cover"
               />

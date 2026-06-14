@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
+import sharp from "sharp";
 
 export const dynamic = "force-dynamic";
 
@@ -30,15 +31,35 @@ export async function POST(request: Request) {
       );
     }
 
-    // Generate a clean filename
-    const ext = path.extname(file.name) || ".png";
+    // Generate a clean filename and convert to WebP using sharp if not already WebP
+    const originalExt = path.extname(file.name) || ".png";
     const baseName = file.name
-      .replace(ext, "")
+      .replace(originalExt, "")
       .replace(/[^a-zA-Z0-9_-]/g, "_")
       .toLowerCase()
       .slice(0, 50);
     const timestamp = Date.now();
-    const fileName = `${baseName}_${timestamp}${ext}`;
+
+    const bytes = await file.arrayBuffer();
+    const originalBuffer = Buffer.from(bytes);
+    let outputBuffer: Buffer;
+    let fileName: string;
+
+    if (file.type === "image/webp") {
+      outputBuffer = originalBuffer;
+      fileName = `${baseName}_${timestamp}.webp`;
+    } else {
+      try {
+        outputBuffer = await sharp(originalBuffer)
+          .webp({ quality: 85 })
+          .toBuffer();
+        fileName = `${baseName}_${timestamp}.webp`;
+      } catch (sharpError: any) {
+        console.error("Sharp conversion to WebP failed, using original format:", sharpError);
+        outputBuffer = originalBuffer;
+        fileName = `${baseName}_${timestamp}${originalExt}`;
+      }
+    }
 
     // Determine the target directory — the web app's public/images folder
     // In monorepo: from apps/admin -> apps/web/public/images
@@ -66,10 +87,19 @@ export async function POST(request: Request) {
     await fs.mkdir(targetDir, { recursive: true });
 
     // Write the file
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
     const filePath = path.join(targetDir, fileName);
-    await fs.writeFile(filePath, buffer);
+    await fs.writeFile(filePath, outputBuffer);
+
+    // If it's a tractor image, also copy it to the admin public/images folder to keep them in sync
+    if (fileName.startsWith("new_holland_") || fileName.includes("tractor")) {
+      const adminPublicImagesDir = path.resolve(process.cwd(), "public", "images");
+      try {
+        await fs.mkdir(adminPublicImagesDir, { recursive: true });
+        await fs.writeFile(path.join(adminPublicImagesDir, fileName), outputBuffer);
+      } catch (adminCopyError) {
+        console.error("Failed to copy image to admin public folder:", adminCopyError);
+      }
+    }
 
     // Return the public URL path for use in the frontend
     const publicUrl = `/images/${fileName}`;
@@ -78,7 +108,7 @@ export async function POST(request: Request) {
       success: true,
       url: publicUrl,
       fileName: fileName,
-      message: "Image uploaded successfully.",
+      message: "Image uploaded and converted successfully.",
     });
   } catch (error: any) {
     console.error("Image Upload Error:", error);
