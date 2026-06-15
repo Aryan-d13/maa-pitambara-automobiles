@@ -8,9 +8,10 @@ interface TractorCardProps {
   lang: 'en' | 'hi';
   translations: TranslationDict;
   phone: string;
+  onCalculateEmi?: (id: string) => void;
 }
 
-export default function TractorCard({ tractor, lang, translations, phone }: TractorCardProps) {
+export default function TractorCard({ tractor, lang, translations, phone, onCalculateEmi }: TractorCardProps) {
   const handleSpeak = (e: React.MouseEvent) => {
     e.stopPropagation();
     
@@ -20,13 +21,13 @@ export default function TractorCard({ tractor, lang, translations, phone }: Trac
       if (tractor.engine) text += ` इसमें ${tractor.cylinders || ''} सिलेंडर ${tractor.engine} इंजन लगा है।`;
       if (tractor.ptoHp) text += ` PTO पावर ${tractor.ptoHp} है।`;
       if (tractor.liftingCapacity) text += ` लिफ्टिंग कैपेसिटी ${tractor.liftingCapacity} है।`;
-      text += ` कीमत जानने के लिए ${phone.replace(/[^0-9]/g, '')} पर कॉल करें।`;
+      text += ` कीमत और ई एम आई जानने के लिए कॉल या व्हाट्सएप बटन पर क्लिक करें।`;
     } else {
       text = `This is the ${tractor.name} tractor with ${tractor.hp} Horsepower.`;
       if (tractor.engine) text += ` It features a ${tractor.cylinders || ''} cylinder ${tractor.engine} engine.`;
       if (tractor.ptoHp) text += ` PTO power output is ${tractor.ptoHp}.`;
       if (tractor.liftingCapacity) text += ` Hydraulic lifting capacity is ${tractor.liftingCapacity}.`;
-      text += ` Call ${phone.replace(/[^0-9]/g, '')} for the best price.`;
+      text += ` Click the call or WhatsApp button for price and financing options.`;
     }
     
     speakText(text, lang);
@@ -42,6 +43,13 @@ export default function TractorCard({ tractor, lang, translations, phone }: Trac
   };
 
   const categoryBgColor = tractor.category ? (categoryColors[tractor.category] || "bg-slate-500") : "bg-slate-500";
+
+  // Model-specific WhatsApp Pre-fill URL
+  const whatsappMessage = lang === 'hi'
+    ? `नमस्ते माँ पीताम्बरा ऑटोमोबाइल्स, मुझे ${tractor.name} (${tractor.hp} HP) के बारे में जानकारी चाहिए — कृपया इसकी कीमत, EMI और उपलब्धता बताएं।`
+    : `Hello Maa Pitambara Automobiles, I would like to inquire about ${tractor.name} (${tractor.hp} HP) — please provide details on price, EMI options, and availability.`;
+  const encodedMsg = encodeURIComponent(whatsappMessage);
+  const tractorWhatsappUrl = `https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${encodedMsg}`;
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-200 hover-scale glow-blue flex flex-col h-full group">
@@ -102,7 +110,7 @@ export default function TractorCard({ tractor, lang, translations, phone }: Trac
             </span>
           </div>
           <span className="text-[#0051BA] font-black text-lg block mt-0.5">
-            {tractor.price === "Price on Request" ? (translations.priceOnCall || "Call Us") : tractor.price}
+            {tractor.price === "Price on Request" ? (translations.priceOnCall || "Call for Best Price") : tractor.price}
           </span>
         </div>
 
@@ -175,13 +183,34 @@ export default function TractorCard({ tractor, lang, translations, phone }: Trac
 
         {/* Call to Action Inside Card */}
         <div className="mt-auto space-y-2">
-          <a
-            href={`tel:${phone}`}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-[#0051BA] hover:bg-[#003e92] text-white font-extrabold text-center rounded-xl transition-colors cursor-pointer text-base shadow-sm"
-          >
-            <span>📞</span>
-            <span>{translations.askPrice || "Ask Price"}</span>
-          </a>
+          <div className="flex gap-2">
+            <a
+              href={`tel:${phone}`}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#0051BA] hover:bg-[#003e92] text-white font-extrabold text-center rounded-xl transition-colors cursor-pointer text-xs sm:text-sm shadow-sm"
+            >
+              <span>📞</span>
+              <span>{translations.callNow || "Call Now"}</span>
+            </a>
+            <a
+              href={tractorWhatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#25D366] hover:bg-[#1ebd5b] text-white font-extrabold text-center rounded-xl transition-colors cursor-pointer text-xs sm:text-sm shadow-sm"
+            >
+              <span>💬</span>
+              <span>{translations.whatsappUs || "WhatsApp"}</span>
+            </a>
+          </div>
+
+          {onCalculateEmi && (
+            <button
+              onClick={() => onCalculateEmi(tractor.id)}
+              className="w-full flex items-center justify-center gap-1.5 py-2 bg-slate-100 hover:bg-slate-200 text-[#0051BA] font-extrabold text-center rounded-xl transition-colors cursor-pointer text-xs border border-slate-200 shadow-sm"
+            >
+              <span>🧮</span>
+              <span>{translations.calculateEmi || "Calculate EMI"}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

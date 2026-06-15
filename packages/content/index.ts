@@ -30,6 +30,18 @@ export interface TranslationDict {
   [key: string]: string;
 }
 
+export interface Testimonial {
+  id: string;
+  farmerName: string;
+  farmerNameHi: string;
+  village: string;
+  villageHi: string;
+  tractorModel: string;
+  quote: string;
+  quoteHi: string;
+  imageUrl?: string;
+}
+
 export interface SiteContent {
   contact: ContactInfo;
   translations: {
@@ -37,6 +49,7 @@ export interface SiteContent {
     hi: TranslationDict;
   };
   tractors: Tractor[];
+  testimonials: Testimonial[];
 }
 
 export function getContentPath(): string {

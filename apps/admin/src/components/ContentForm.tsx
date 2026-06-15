@@ -17,16 +17,23 @@ const CATEGORY_OPTIONS = [
 ];
 
 export default function ContentForm({ initialContent }: ContentFormProps) {
-  const [content, setContent] = useState<SiteContent>(initialContent);
+  const [content, setContent] = useState<SiteContent>(() => {
+    return {
+      ...initialContent,
+      testimonials: initialContent.testimonials || [],
+    };
+  });
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [toast, setToast] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [uploadingFor, setUploadingFor] = useState<number | null>(null);
   const [selectedTractorIndex, setSelectedTractorIndex] = useState<number>(0);
-  const [activeTab, setActiveTab] = useState<"tractors" | "contact" | "translations">("tractors");
+  const [selectedTestimonialIndex, setSelectedTestimonialIndex] = useState<number>(0);
+  const [activeTab, setActiveTab] = useState<"tractors" | "contact" | "translations" | "testimonials">("tractors");
   const [showRawPath, setShowRawPath] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const testimonialFileInputRef = useRef<HTMLInputElement>(null);
 
   // Show Toast
   const showToast = (type: "success" | "error", text: string) => {
@@ -144,6 +151,85 @@ export default function ContentForm({ initialContent }: ContentFormProps) {
     setSelectedTractorIndex(swapIndex);
   };
 
+  // Handle Testimonial Changes
+  const handleTestimonialChange = (index: number, field: string, value: string) => {
+    setContent((prev) => {
+      const newTestimonials = [...(prev.testimonials || [])];
+      newTestimonials[index] = {
+        ...newTestimonials[index],
+        [field]: value,
+      };
+      return {
+        ...prev,
+        testimonials: newTestimonials,
+      };
+    });
+  };
+
+  // Add a Testimonial
+  const handleAddTestimonial = () => {
+    const newTestimonial = {
+      id: `test-${Date.now()}`,
+      farmerName: "New Farmer",
+      farmerNameHi: "नया किसान",
+      village: "Village",
+      villageHi: "गांव",
+      tractorModel: content.tractors[0]?.name || "New Holland 3630",
+      quote: "Great service and strong tractor performance.",
+      quoteHi: "बहुत बढ़िया सर्विस और बेहतरीन ट्रैक्टर परफॉरमेंस।",
+      imageUrl: "",
+    };
+    
+    setContent((prev) => ({
+      ...prev,
+      testimonials: [...(prev.testimonials || []), newTestimonial],
+    }));
+
+    setSelectedTestimonialIndex(content.testimonials?.length || 0);
+    showToast("success", "🆕 Created testimonial template and loaded in editor");
+  };
+
+  // Delete a Testimonial
+  const handleDeleteTestimonial = (index: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this testimonial?")) return;
+
+    setContent((prev) => {
+      const newTestimonials = [...(prev.testimonials || [])];
+      newTestimonials.splice(index, 1);
+      return {
+        ...prev,
+        testimonials: newTestimonials,
+      };
+    });
+
+    setSelectedTestimonialIndex((prev) => {
+      const len = content.testimonials?.length || 0;
+      if (prev >= len - 1) {
+        return Math.max(0, len - 2);
+      }
+      return prev;
+    });
+
+    showToast("success", "Removed farmer testimonial");
+  };
+
+  // Move testimonial up/down
+  const handleMoveTestimonial = (index: number, direction: "up" | "down", e: React.MouseEvent) => {
+    e.stopPropagation();
+    const swapIndex = direction === "up" ? index - 1 : index + 1;
+    const len = content.testimonials?.length || 0;
+    if (swapIndex < 0 || swapIndex >= len) return;
+
+    setContent((prev) => {
+      const newTestimonials = [...(prev.testimonials || [])];
+      [newTestimonials[index], newTestimonials[swapIndex]] = [newTestimonials[swapIndex], newTestimonials[index]];
+      return { ...prev, testimonials: newTestimonials };
+    });
+
+    setSelectedTestimonialIndex(swapIndex);
+  };
+
   // Handle Translation Changes
   const handleTranslationChange = (lang: "en" | "hi", key: string, value: string) => {
     setContent((prev) => ({
@@ -159,7 +245,7 @@ export default function ContentForm({ initialContent }: ContentFormProps) {
   };
 
   // Handle Image Upload
-  const handleImageUpload = async (index: number, file: File) => {
+  const handleImageUpload = async (index: number, file: File, type: "tractor" | "testimonial") => {
     setUploadingFor(index);
 
     try {
@@ -174,7 +260,11 @@ export default function ContentForm({ initialContent }: ContentFormProps) {
       const result = await response.json();
 
       if (response.ok && result.url) {
-        handleTractorChange(index, "imageUrl", result.url);
+        if (type === "tractor") {
+          handleTractorChange(index, "imageUrl", result.url);
+        } else {
+          handleTestimonialChange(index, "imageUrl", result.url);
+        }
         showToast("success", `📸 Image uploaded: ${result.fileName}`);
       } else {
         showToast("error", result.error || "Failed to upload image.");
@@ -187,12 +277,12 @@ export default function ContentForm({ initialContent }: ContentFormProps) {
   };
 
   // Handle drag-and-drop
-  const handleDrop = (e: React.DragEvent, index: number) => {
+  const handleDrop = (e: React.DragEvent, index: number, type: "tractor" | "testimonial") => {
     e.preventDefault();
     e.stopPropagation();
     const file = e.dataTransfer.files?.[0];
     if (file && file.type.startsWith("image/")) {
-      handleImageUpload(index, file);
+      handleImageUpload(index, file, type);
     } else {
       showToast("error", "Please drop an image file (PNG, JPG, WebP)");
     }
@@ -343,6 +433,22 @@ export default function ContentForm({ initialContent }: ContentFormProps) {
               <span className="text-[10px] text-[#686882] font-semibold mt-1 uppercase tracking-wider">Hindi & English Text</span>
             </div>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("testimonials")}
+            className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-left font-bold transition-all ${
+              activeTab === "testimonials"
+                ? "bg-[#4d8eff]/10 text-[#4d8eff] border-l-4 border-[#4d8eff] shadow-[0_4px_20px_rgba(77,142,255,0.05)]"
+                : "text-[#9898b0] hover:bg-[#1a1a26] hover:text-white"
+            }`}
+          >
+            <span className="text-xl">🤝</span>
+            <div className="flex flex-col">
+              <span className="text-sm tracking-tight leading-none">Testimonials</span>
+              <span className="text-[10px] text-[#686882] font-semibold mt-1 uppercase tracking-wider">Farmer Reviews ({content.testimonials?.length || 0})</span>
+            </div>
+          </button>
         </nav>
 
         {/* Reset Database Trigger Button */}
@@ -380,17 +486,19 @@ export default function ContentForm({ initialContent }: ContentFormProps) {
         <header className="sticky top-0 z-30 bg-[#0a0a0f]/80 backdrop-blur-md border-b border-[#2a2a3a] px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
             <span className="text-2xl">
-              {activeTab === "tractors" ? "🚜" : activeTab === "contact" ? "📞" : "🌐"}
+              {activeTab === "tractors" ? "🚜" : activeTab === "contact" ? "📞" : activeTab === "testimonials" ? "🤝" : "🌐"}
             </span>
             <div>
               <h1 className="text-lg font-black text-white capitalize leading-none tracking-tight">
-                {activeTab === "tractors" ? "Tractor Showroom Catalog" : activeTab === "contact" ? "Dealer Contacts Settings" : "Bilingual Localization Dictionary"}
+                {activeTab === "tractors" ? "Tractor Showroom Catalog" : activeTab === "contact" ? "Dealer Contacts Settings" : activeTab === "testimonials" ? "Farmer Testimonials Settings" : "Bilingual Localization Dictionary"}
               </h1>
               <p className="text-xs text-[#9898b0] font-semibold mt-1">
                 {activeTab === "tractors"
                   ? "Manage model inventory specifications, categories, and direct interactive image uploads."
                   : activeTab === "contact"
                   ? "Edit phone calling numbers, WhatsApp routing, and coordinate maps URLs."
+                  : activeTab === "testimonials"
+                  ? "Manage farmer reviews, quotes in Hindi & English, and customer photos."
                   : "Compare English and Hindi marketing descriptions and landing copy side-by-side."}
               </p>
             </div>
@@ -570,7 +678,7 @@ export default function ContentForm({ initialContent }: ContentFormProps) {
                       <label className="admin-label">Product Visual Asset</label>
                       
                       <div
-                        onDrop={(e) => handleDrop(e, selectedTractorIndex)}
+                        onDrop={(e) => handleDrop(e, selectedTractorIndex, "tractor")}
                         onDragOver={handleDragOver}
                         onClick={() => fileInputRef.current?.click()}
                         className="group w-full max-w-md aspect-[16/9] rounded-2xl border-2 border-dashed border-[#2a2a3a] bg-[#0c0c12] relative cursor-pointer overflow-hidden flex flex-col items-center justify-center transition-all hover:border-[#4d8eff]/50 hover:bg-[#12121a]/80"
@@ -618,7 +726,7 @@ export default function ContentForm({ initialContent }: ContentFormProps) {
                         className="hidden"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          if (file) handleImageUpload(selectedTractorIndex, file);
+                          if (file) handleImageUpload(selectedTractorIndex, file, "tractor");
                           e.target.value = "";
                         }}
                       />
@@ -975,6 +1083,309 @@ export default function ContentForm({ initialContent }: ContentFormProps) {
                     </div>
                   );
                 })}
+              </div>
+
+            </div>
+          )}
+
+          {/* TAB 4: FARMER TESTIMONIALS (MASTER-DETAIL SPLIT UX) */}
+          {activeTab === "testimonials" && (
+            <div className="h-full flex flex-col lg:flex-row gap-6 items-stretch max-w-6xl mx-auto">
+              
+              {/* MASTER SIDEBAR: Testimonials list */}
+              <div className="w-full lg:w-80 bg-[#12121a] border border-[#2a2a3a] rounded-2xl flex flex-col shrink-0 h-[300px] lg:h-auto overflow-hidden">
+                <div className="p-4 border-b border-[#2a2a3a] flex items-center justify-between bg-[#161622]">
+                  <span className="text-xs font-bold text-[#9898b0] uppercase tracking-wider">Testimonials ({content.testimonials?.length || 0})</span>
+                  <button
+                    type="button"
+                    onClick={handleAddTestimonial}
+                    className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] rounded-lg transition-all active:scale-95 cursor-pointer flex items-center gap-1"
+                  >
+                    <span>➕</span> Add New
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-3 space-y-1.5 custom-scrollbar">
+                  {(content.testimonials || []).map((testimonial, index) => {
+                    const isSelected = selectedTestimonialIndex === index;
+                    return (
+                      <div
+                        key={testimonial.id}
+                        onClick={() => setSelectedTestimonialIndex(index)}
+                        className={`group p-3 rounded-xl border transition-all cursor-pointer flex items-center gap-3 relative ${
+                          isSelected
+                            ? "bg-[#4d8eff]/10 border-[#4d8eff] shadow-[0_2px_12px_rgba(77,142,255,0.05)]"
+                            : "bg-[#161622]/40 border-[#2a2a3a] hover:bg-[#161622]/80 hover:border-[#33334a]"
+                        }`}
+                      >
+                        {/* Avatar Thumbnail */}
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0a0a0f] border border-[#2a2a3a] shrink-0 flex items-center justify-center text-xs font-black text-white bg-gradient-to-br from-[#0051BA] to-blue-400">
+                          {testimonial.imageUrl ? (
+                            <img
+                              src={testimonial.imageUrl}
+                              alt={testimonial.farmerName}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            (testimonial.farmerName || "KP").split(" ").map(n => n[0]).join("").slice(0, 2)
+                          )}
+                        </div>
+
+                        {/* Farmer Details */}
+                        <div className="flex-1 min-w-0">
+                          <h4 className={`text-xs font-bold truncate ${isSelected ? "text-white" : "text-[#d0d0da] group-hover:text-white"}`}>
+                            {testimonial.farmerName || "Unnamed Farmer"}
+                          </h4>
+                          <span className="text-[9px] text-[#686882] font-semibold block mt-0.5">
+                            📍 {testimonial.village || "No Village"}
+                          </span>
+                        </div>
+
+                        {/* Testimonial reordering & delete */}
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 lg:group-hover:opacity-100 transition-opacity ml-auto" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            onClick={(e) => handleMoveTestimonial(index, "up", e)}
+                            disabled={index === 0}
+                            className="p-1 hover:bg-[#222230] text-[#9898b0] hover:text-white rounded disabled:opacity-20 cursor-pointer"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m18 15-6-6-6 6"/></svg>
+                          </button>
+                          
+                          <button
+                            type="button"
+                            onClick={(e) => handleMoveTestimonial(index, "down", e)}
+                            disabled={index === (content.testimonials?.length || 0) - 1}
+                            className="p-1 hover:bg-[#222230] text-[#9898b0] hover:text-white rounded disabled:opacity-20 cursor-pointer"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m6 9 6 6 6-6"/></svg>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={(e) => handleDeleteTestimonial(index, e)}
+                            className="p-1 hover:bg-[#7f1d1d]/30 text-[#f87171] hover:text-red-400 rounded cursor-pointer"
+                            title="Delete"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                          </button>
+                        </div>
+
+                      </div>
+                    );
+                  })}
+
+                  {(content.testimonials || []).length === 0 && (
+                    <div className="text-center py-8 text-[#686882]">
+                      <p className="text-xs">No farmer testimonials</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* DETAIL PANEL: Selected Testimonial Workspace */}
+              <div className="flex-1 bg-[#12121a] border border-[#2a2a3a] rounded-2xl p-6 flex flex-col overflow-y-auto lg:h-auto min-h-[400px]">
+                {content.testimonials && content.testimonials[selectedTestimonialIndex] ? (
+                  <div className="space-y-6">
+                    {/* Header Detail */}
+                    <div className="flex items-center justify-between border-b border-[#2a2a3a] pb-4">
+                      <div>
+                        <span className="text-[10px] uppercase font-mono bg-[#4d8eff]/10 text-[#4d8eff] px-2 py-0.5 rounded font-bold">
+                          TESTIMONIAL ID: {content.testimonials[selectedTestimonialIndex].id}
+                        </span>
+                        <h3 className="text-base font-black text-white mt-1.5 font-bold">
+                          {content.testimonials[selectedTestimonialIndex].farmerName || "Unnamed Farmer"}
+                        </h3>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteTestimonial(selectedTestimonialIndex, e)}
+                        className="px-3 py-1.5 bg-[#f87171]/10 text-[#f87171] hover:bg-[#f87171] hover:text-white border border-[#f87171]/20 font-bold text-xs rounded-xl transition-all cursor-pointer active:scale-95"
+                      >
+                        Delete Testimonial
+                      </button>
+                    </div>
+
+                    {/* Image Upload for Farmer Photo */}
+                    <div className="space-y-2">
+                      <label className="admin-label">Farmer Photo (Optional)</label>
+                      <div
+                        onDrop={(e) => handleDrop(e, selectedTestimonialIndex, "testimonial")}
+                        onDragOver={handleDragOver}
+                        onClick={() => testimonialFileInputRef.current?.click()}
+                        className="group w-40 h-40 rounded-full border-2 border-dashed border-[#2a2a3a] bg-[#0c0c12] relative cursor-pointer overflow-hidden flex flex-col items-center justify-center transition-all hover:border-[#4d8eff]/50 hover:bg-[#12121a]/80 mx-auto lg:mx-0"
+                        title="Click or drag image here to change"
+                      >
+                        {uploadingFor === selectedTestimonialIndex ? (
+                          <div className="flex flex-col items-center justify-center gap-2 text-center p-2">
+                            <span className="w-6 h-6 border-2 border-[#4d8eff]/30 border-t-[#4d8eff] rounded-full animate-spin"></span>
+                            <span className="text-[10px] font-bold text-[#4d8eff]">Uploading...</span>
+                          </div>
+                        ) : content.testimonials[selectedTestimonialIndex].imageUrl ? (
+                          <>
+                            <img
+                              src={content.testimonials[selectedTestimonialIndex].imageUrl}
+                              alt={content.testimonials[selectedTestimonialIndex].farmerName}
+                              className="w-full h-full object-cover absolute inset-0 z-0"
+                            />
+                            <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex flex-col items-center justify-center text-white text-center p-2">
+                              <span className="text-[9px] font-black uppercase">Change Photo</span>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-center p-2 text-[#686882] group-hover:text-white">
+                            <span className="text-2xl">👨‍🌾</span>
+                            <span className="text-[9px] font-bold mt-1 text-[#9898b0]">Upload Photo</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Hidden File input for testimonials */}
+                      <input
+                        ref={testimonialFileInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleImageUpload(selectedTestimonialIndex, file, "testimonial");
+                          e.target.value = "";
+                        }}
+                      />
+
+                      {/* Show photo raw route path settings */}
+                      <div className="pt-1 text-center lg:text-left">
+                        <button
+                          type="button"
+                          onClick={() => setShowRawPath(!showRawPath)}
+                          className="text-[9px] text-[#4d8eff] hover:underline font-bold tracking-wide cursor-pointer"
+                        >
+                          {showRawPath ? "Hide raw photo path settings" : "Show raw photo path settings"}
+                        </button>
+                        {showRawPath && (
+                          <input
+                            type="text"
+                            value={content.testimonials[selectedTestimonialIndex].imageUrl || ""}
+                            onChange={(e) => handleTestimonialChange(selectedTestimonialIndex, "imageUrl", e.target.value)}
+                            className="admin-input font-mono text-[10px] !py-1 bg-[#0c0c12] mt-1 text-center lg:text-left"
+                            placeholder="/images/happy_farmer_1.webp"
+                          />
+                        )}
+                      </div>
+                    </div>
+
+                    {/* FIELDS */}
+                    <div className="space-y-4">
+                      
+                      {/* Grid 1: Basic Info */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="admin-label">Farmer Name (English)</label>
+                          <input
+                            type="text"
+                            value={content.testimonials[selectedTestimonialIndex].farmerName}
+                            onChange={(e) => handleTestimonialChange(selectedTestimonialIndex, "farmerName", e.target.value)}
+                            className="admin-input"
+                            placeholder="e.g. Ramesh Patidar"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="admin-label">Farmer Name (Hindi)</label>
+                          <input
+                            type="text"
+                            value={content.testimonials[selectedTestimonialIndex].farmerNameHi}
+                            onChange={(e) => handleTestimonialChange(selectedTestimonialIndex, "farmerNameHi", e.target.value)}
+                            className="admin-input text-[#4d8eff]"
+                            placeholder="जैसे: रमेश पाटीदार"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="admin-label">Village (English)</label>
+                          <input
+                            type="text"
+                            value={content.testimonials[selectedTestimonialIndex].village}
+                            onChange={(e) => handleTestimonialChange(selectedTestimonialIndex, "village", e.target.value)}
+                            className="admin-input"
+                            placeholder="e.g. Lalakhedi"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="admin-label">Village (Hindi)</label>
+                          <input
+                            type="text"
+                            value={content.testimonials[selectedTestimonialIndex].villageHi}
+                            onChange={(e) => handleTestimonialChange(selectedTestimonialIndex, "villageHi", e.target.value)}
+                            className="admin-input text-[#4d8eff]"
+                            placeholder="जैसे: लालखेड़ी"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      {/* Tractor Model Select */}
+                      <div className="space-y-1">
+                        <label className="admin-label">Purchased Tractor Model</label>
+                        <select
+                          value={content.testimonials[selectedTestimonialIndex].tractorModel}
+                          onChange={(e) => handleTestimonialChange(selectedTestimonialIndex, "tractorModel", e.target.value)}
+                          className="admin-select w-full"
+                        >
+                          {content.tractors.map((t) => (
+                            <option key={t.id} value={t.name}>{t.name}</option>
+                          ))}
+                          <option value="New Holland Custom">Custom/Other Model</option>
+                        </select>
+                        <input
+                          type="text"
+                          value={content.testimonials[selectedTestimonialIndex].tractorModel}
+                          onChange={(e) => handleTestimonialChange(selectedTestimonialIndex, "tractorModel", e.target.value)}
+                          className="admin-input mt-1.5"
+                          placeholder="Or type custom model name"
+                          required
+                        />
+                      </div>
+
+                      {/* Quote English */}
+                      <div className="space-y-1">
+                        <label className="admin-label">Quote / Feedback (English)</label>
+                        <textarea
+                          rows={3}
+                          value={content.testimonials[selectedTestimonialIndex].quote}
+                          onChange={(e) => handleTestimonialChange(selectedTestimonialIndex, "quote", e.target.value)}
+                          className="admin-textarea text-xs"
+                          placeholder="Enter feedback in English..."
+                          required
+                        />
+                      </div>
+
+                      {/* Quote Hindi */}
+                      <div className="space-y-1">
+                        <label className="admin-label">Quote / Feedback (Hindi)</label>
+                        <textarea
+                          rows={3}
+                          value={content.testimonials[selectedTestimonialIndex].quoteHi}
+                          onChange={(e) => handleTestimonialChange(selectedTestimonialIndex, "quoteHi", e.target.value)}
+                          className="admin-textarea text-xs text-[#4d8eff]"
+                          placeholder="हिंदी में प्रतिक्रिया दर्ज करें..."
+                          required
+                        />
+                      </div>
+
+                    </div>
+
+                  </div>
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center text-center p-8 text-[#686882] space-y-3">
+                    <span className="text-5xl">🤝</span>
+                    <h3 className="text-base font-black text-white">No Testimonial Selected</h3>
+                    <p className="text-xs max-w-xs leading-normal">
+                      Select a farmer testimonial from the list on the left to edit, or click "➕ Add New" to create one.
+                    </p>
+                  </div>
+                )}
               </div>
 
             </div>

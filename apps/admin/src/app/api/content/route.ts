@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Body must be a valid JSON object." }, { status: 400 });
     }
     
-    const { contact, translations, tractors } = body;
+    const { contact, translations, tractors, testimonials } = body;
     
     if (!contact || typeof contact !== "object" || !contact.phone || !contact.whatsapp || !contact.mapsUrl) {
       return NextResponse.json({ error: "Missing or invalid contact info." }, { status: 400 });
@@ -60,12 +60,26 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "One or more tractors are missing required keys." }, { status: 400 });
       }
     }
+
+    // Check elements inside testimonials array if present
+    if (testimonials && !Array.isArray(testimonials)) {
+      return NextResponse.json({ error: "Testimonials field must be an array." }, { status: 400 });
+    }
+
+    if (testimonials) {
+      for (const t of testimonials) {
+        if (!t.id || !t.farmerName || !t.farmerNameHi || !t.village || !t.villageHi || !t.tractorModel || !t.quote || !t.quoteHi) {
+          return NextResponse.json({ error: "One or more testimonials are missing required fields." }, { status: 400 });
+        }
+      }
+    }
     
     // Cast and save the validated object
     const validatedContent: SiteContent = {
       contact,
       translations,
-      tractors
+      tractors,
+      testimonials: testimonials || []
     };
     
     await writeContent(validatedContent);

@@ -6,6 +6,7 @@ import LanguageSelector from "./LanguageSelector";
 import TractorCard from "./TractorCard";
 import StickyBottomNav from "./StickyBottomNav";
 import { speakText, stopSpeaking } from "./AudioPlayer";
+import EMICalculator from "./EMICalculator";
 
 interface FarmerPortalProps {
   initialContent: SiteContent;
@@ -13,6 +14,14 @@ interface FarmerPortalProps {
 
 export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
   const [lang, setLang] = useState<'en' | 'hi'>('hi'); // Defaulting to Hindi for rural Madhya Pradesh
+  const [isEmiOpen, setIsEmiOpen] = useState(false);
+  const [emiTractorId, setEmiTractorId] = useState("");
+
+  const handleOpenEmi = (tractorId: string) => {
+    setEmiTractorId(tractorId);
+    setIsEmiOpen(true);
+  };
+
   const { contact, translations, tractors } = initialContent;
   const t = translations[lang];
 
@@ -177,6 +186,7 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
                 lang={lang}
                 translations={t}
                 phone={contact.phone}
+                onCalculateEmi={handleOpenEmi}
               />
             ))}
           </div>
@@ -186,6 +196,31 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
               ? `* कीमतें अनुमानित एक्स-शोरूम हैं। सटीक कीमत और ऑफ़र के लिए ${contact.phone.replace(/[^0-9]/g, '')} पर कॉल करें।`
               : `* Prices shown are approximate ex-showroom. Call ${contact.phone.replace(/[^0-9]/g, '')} for exact pricing, offers & EMI options.`}
           </p>
+        </section>
+
+        {/* Standalone Loan & EMI Calculator Section */}
+        <section id="finance" className="space-y-6 scroll-mt-20">
+          <div className="text-center md:text-left">
+            <h2 className="text-3xl font-black text-slate-800 tracking-tight flex items-center justify-center md:justify-start gap-3">
+              <span>🧮</span>
+              <span>{lang === 'hi' ? 'ट्रैक्टर लोन और EMI कैलकुलेटर' : 'Tractor Loan & EMI Calculator'}</span>
+            </h2>
+            <p className="text-slate-500 font-medium mt-1 text-sm">
+              {lang === 'hi'
+                ? 'अपने बजट के अनुसार आसान मासिक किस्त की गणना करें'
+                : 'Calculate easy monthly installments based on your budget'}
+            </p>
+            <div className="h-1.5 w-24 bg-[#0051BA] rounded-full mx-auto md:mx-0 mt-2" />
+          </div>
+
+          <div className="pt-2">
+            <EMICalculator
+              tractors={tractors}
+              lang={lang}
+              translations={t}
+              phone={contact.phone}
+            />
+          </div>
         </section>
 
         {/* Service Workshop and Parts */}
@@ -304,6 +339,69 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
                   : 'Hundreds of farmers across Shajapur and nearby villages have placed their trust in Maa Pitambara Automobiles and New Holland Tractors. We celebrate every tractor delivery with a special ceremony, welcoming each farming family into our fold.'}
               </p>
             </div>
+          </div>
+        </section>
+
+        {/* Farmer Testimonials Section */}
+        <section id="testimonials" className="space-y-8 scroll-mt-20">
+          <div className="text-center md:text-left">
+            <h2 className="text-3xl font-black text-slate-800 tracking-tight flex items-center justify-center md:justify-start gap-3">
+              <span>🗣️</span>
+              <span>{t.farmerTestimonialsTitle || (lang === 'hi' ? 'शाजापुर के किसानों की ज़ुबानी' : 'What Shajapur Farmers Say')}</span>
+            </h2>
+            <p className="text-slate-500 font-medium mt-1 text-sm">
+              {t.farmerTestimonialsSubtitle || (lang === 'hi' ? 'हमारे संतुष्ट किसान ग्राहकों के वास्तविक अनुभव' : 'Real experiences of our satisfied customer families')}
+            </p>
+            <div className="h-1.5 w-24 bg-[#0051BA] rounded-full mx-auto md:mx-0 mt-2" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {(initialContent.testimonials || []).map((testimonial) => {
+              const name = lang === 'hi' ? testimonial.farmerNameHi : testimonial.farmerName;
+              const village = lang === 'hi' ? testimonial.villageHi : testimonial.village;
+              const quote = lang === 'hi' ? testimonial.quoteHi : testimonial.quote;
+              
+              // Initials avatar
+              const initials = name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .slice(0, 2);
+
+              return (
+                <div key={testimonial.id} className="bg-white rounded-2xl p-6 shadow-md border border-slate-200 hover-scale flex flex-col justify-between relative group">
+                  <span className="absolute top-4 right-6 text-6xl text-[#0051BA]/10 font-serif pointer-events-none">❝</span>
+                  
+                  <div className="space-y-4 flex-1">
+                    <p className="text-slate-600 font-medium text-sm sm:text-base italic leading-relaxed relative z-10">
+                      "{quote}"
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3.5 pt-6 mt-6 border-t border-slate-100">
+                    {testimonial.imageUrl ? (
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100 border border-slate-200">
+                        <img src={testimonial.imageUrl} alt={name} className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#0051BA] to-blue-400 text-white font-black text-sm flex items-center justify-center shadow-inner">
+                        {initials}
+                      </div>
+                    )}
+                    <div>
+                      <h4 className="font-black text-slate-800 text-sm sm:text-base leading-none">{name}</h4>
+                      <div className="flex items-center gap-1.5 mt-1.5 text-xs text-slate-500 font-bold">
+                        <span>📍 {village}</span>
+                        <span>•</span>
+                        <span className="text-[#0051BA] bg-[#0051BA]/5 px-2.5 py-0.5 rounded-full text-[10px]">
+                          {testimonial.tractorModel}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -476,7 +574,9 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
             <div className="space-y-2">
               <div className="text-sm font-bold text-white uppercase tracking-wider">{lang === 'hi' ? 'त्वरित लिंक' : 'Quick Links'}</div>
               <a href="#tractors" className="block text-sm text-slate-400 hover:text-white transition-colors">{t.navTractors}</a>
+              <a href="#finance" className="block text-sm text-slate-400 hover:text-white transition-colors">{t.emiCalculatorTitle || (lang === 'hi' ? 'EMI कैलकुलेटर' : 'EMI Calculator')}</a>
               <a href="#service" className="block text-sm text-slate-400 hover:text-white transition-colors">{t.navService}</a>
+              <a href="#testimonials" className="block text-sm text-slate-400 hover:text-white transition-colors">{lang === 'hi' ? 'किसान अनुभव' : 'Farmer Reviews'}</a>
               <a href="#location" className="block text-sm text-slate-400 hover:text-white transition-colors">{t.navContact}</a>
             </div>
             {/* Contact */}
@@ -501,6 +601,22 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
         translations={t}
         lang={lang}
       />
+
+      {/* EMI Modal Drawer */}
+      {isEmiOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="relative w-full max-w-4xl mx-auto my-8 animate-fade-in">
+            <EMICalculator
+              tractors={tractors}
+              lang={lang}
+              translations={t}
+              phone={contact.phone}
+              initialTractorId={emiTractorId}
+              onClose={() => setIsEmiOpen(false)}
+            />
+          </div>
+        </div>
+      )}
 
     </div>
   );

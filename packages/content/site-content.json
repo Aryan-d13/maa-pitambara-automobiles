@@ -33,7 +33,23 @@
       "hpLabel": "Horsepower (HP)",
       "priceLabel": "Price Label / Status",
       "imageUrlLabel": "Tractor Image URL",
-      "speakIntro": "Welcome to Maa Pitambara Automobiles, your authorized New Holland showroom and service centre in Shajapur, Madhya Pradesh. We offer a complete range of New Holland tractors from 17 HP to 65 HP with genuine spare parts and certified servicing, perfect for soybean sowing, wheat harvesting, and orange orchards. Call us at 9926418756 for the best deals."
+      "speakIntro": "Welcome to Maa Pitambara Automobiles, your authorized New Holland showroom and service centre in Shajapur, Madhya Pradesh. We offer a complete range of New Holland tractors from 17 HP to 65 HP with genuine spare parts and certified servicing, perfect for soybean sowing, wheat harvesting, and orange orchards. Call us at 9926418756 for the best deals.",
+      "emiCalculatorTitle": "EMI Calculator",
+      "emiTractorModel": "Select Tractor Model",
+      "emiCustomPrice": "Custom Price (in ₹)",
+      "emiPrice": "Tractor Price (₹)",
+      "emiDownPayment": "Down Payment (₹)",
+      "emiInterestRate": "Annual Interest Rate (%)",
+      "emiTenure": "Loan Tenure (Years)",
+      "emiMonthlyEmi": "Monthly EMI",
+      "emiTotalInterest": "Total Interest Payable",
+      "emiTotalAmount": "Total Amount (Principal + Interest)",
+      "emiApplyWhatsApp": "Get Finance Approval / Chat on WhatsApp",
+      "emiCalculatedDetails": "EMI Details",
+      "emiNote": "Note: This is an approximate calculation. Actual interest rates and down payment terms may vary depending on SBI, HDFC or other banking partner policies.",
+      "calculateEmi": "Calculate EMI",
+      "farmerTestimonialsTitle": "What Shajapur Farmers Say",
+      "farmerTestimonialsSubtitle": "Real experiences of farming families who bought New Holland tractors from Maa Pitambara Automobiles."
     },
     "hi": {
       "navHome": "मुख्य पृष्ठ",
@@ -63,7 +79,23 @@
       "hpLabel": "हॉर्सपावर (HP)",
       "priceLabel": "कीमत / स्थिति",
       "imageUrlLabel": "ट्रैक्टर इमेज यूआरएल",
-      "speakIntro": "माँ पीताम्बरा ऑटोमोबाइल्स शाजापुर में आपका स्वागत है। हम 17 HP से 65 HP तक के बेहतरीन न्यू हॉलैंड ट्रैक्टर प्रदान करते हैं, जो सोयाबीन बोनी, गेहूं कटाई, और संतरा बगीचों में स्प्रे के लिए सबसे उपयुक्त हैं। ऑन-रोड कीमत और फाइनेंस सुविधाओं के लिए 9926418756 पर संपर्क करें।"
+      "speakIntro": "माँ पीताम्बरा ऑटोमोबाइल्स शाजापुर में आपका स्वागत है। हम 17 HP से 65 HP तक के बेहतरीन न्यू हॉलैंड ट्रैक्टर प्रदान करते हैं, जो सोयाबीन बोनी, गेहूं कटाई, और संतरा बगीचों में स्प्रे के लिए सबसे उपयुक्त हैं। ऑन-रोड कीमत और फाइनेंस सुविधाओं के लिए 9926418756 पर संपर्क करें।",
+      "emiCalculatorTitle": "EMI कैलकुलेटर (मासिक किस्त)",
+      "emiTractorModel": "ट्रैक्टर मॉडल चुनें",
+      "emiCustomPrice": "कस्टम कीमत दर्ज करें (₹)",
+      "emiPrice": "ट्रैक्टर की कीमत (₹)",
+      "emiDownPayment": "डाउन पेमेंट (कस्टम नगद राशि) (₹)",
+      "emiInterestRate": "वार्षिक ब्याज दर (%)",
+      "emiTenure": "लोन की अवधि (वर्ष)",
+      "emiMonthlyEmi": "मासिक किस्त (EMI)",
+      "emiTotalInterest": "कुल ब्याज राशि",
+      "emiTotalAmount": "कुल भुगतान राशि (मूलधन + ब्याज)",
+      "emiApplyWhatsApp": "लोन सहायता के लिए व्हाट्सएप भेजें",
+      "emiCalculatedDetails": "EMI विवरण",
+      "emiNote": "नोट: यह एक अनुमानित गणना है। वास्तविक ब्याज दरें और नियम बैंक (जैसे SBI, HDFC आदि) की नीतियों के अनुसार भिन्न हो सकते हैं।",
+      "calculateEmi": "EMI गणना करें",
+      "farmerTestimonialsTitle": "शाजापुर के किसान क्या कहते हैं",
+      "farmerTestimonialsSubtitle": "उन किसान परिवारों के वास्तविक अनुभव जिन्होंने माँ पीताम्बरा ऑटोमोबाइल्स से न्यू हॉलैंड ट्रैक्टर खरीदा।"
     }
   },
   "tractors": [
@@ -171,6 +203,63 @@
       "gears": "12F + 3R Ugati",
       "weight": "2450 kg",
       "category": "Premium Heavy Duty"
+    }
+  ],
+  "testimonials": [
+    {
+      "id": "test-1",
+      "farmerName": "Ramesh Patidar",
+      "farmerNameHi": "रमेश पाटीदार",
+      "village": "Lalakhedi",
+      "villageHi": "लालखेड़ी",
+      "tractorModel": "New Holland 3630 TX Special Edition",
+      "quote": "In soybean sowing and wheat threshing, I get amazing diesel average. Excellent service support from Maa Pitambara Automobiles.",
+      "quoteHi": "सोयाबीन की बोनी और गेहूं की थ्रेसिंग में कमाल का डीजल एवरेज मिलता है। माँ पीताम्बरा ऑटोमोबाइल्स से बढ़िया सर्विस और सपोर्ट मिला।",
+      "imageUrl": ""
+    },
+    {
+      "id": "test-2",
+      "farmerName": "Hukum Chand Kushwah",
+      "farmerNameHi": "हुकम चंद कुशवाहा",
+      "village": "Maksi",
+      "villageHi": "मक्सी",
+      "tractorModel": "New Holland 3600-2 TX Super",
+      "quote": "There is no tractor more powerful than this in the 50 HP category. It pulls my 6-feet rotavator so smoothly on heavy soil.",
+      "quoteHi": "50 HP श्रेणी में इससे ज़्यादा ताकतवर कोई ट्रैक्टर नहीं है। यह भारी मिट्टी में मेरे 6 फीट के रोटावेटर को आसानी से खींचता है।",
+      "imageUrl": ""
+    },
+    {
+      "id": "test-3",
+      "farmerName": "Shivnarayan Dangi",
+      "farmerNameHi": "शिवनारायण दांगी",
+      "village": "Dupada",
+      "villageHi": "दुपड़ा",
+      "tractorModel": "New Holland 3230 TX Super",
+      "quote": "Diesel consumption is very low. It is perfect for spraying in orange orchards and handling general agricultural tasks.",
+      "quoteHi": "डीजल का खर्चा बहुत कम है। संतरा बगीचे में छिड़काव (स्प्रे) और छोटे-मोटे खेती के कामों के लिए एकदम सही है।",
+      "imageUrl": ""
+    },
+    {
+      "id": "test-4",
+      "farmerName": "Balaram Jat",
+      "farmerNameHi": "बलराम जाट",
+      "village": "Akodia",
+      "villageHi": "अकोदिया",
+      "tractorModel": "New Holland 5620 TX Plus",
+      "quote": "Extremely robust tractor for heavy commercial work, trolley haulage and deep cultivator sowing. Very comfortable seat for long hours.",
+      "quoteHi": "हैवी कमर्शियल काम, ट्रॉली और कल्टीवेटर से बोनी के लिए सबसे दमदार ट्रैक्टर है। लगातार काम करने पर भी थकावट नहीं होती।",
+      "imageUrl": ""
+    },
+    {
+      "id": "test-5",
+      "farmerName": "Mahesh Carpenter",
+      "farmerNameHi": "महेश विश्वकर्मा",
+      "village": "Kanad",
+      "villageHi": "कानड़",
+      "tractorModel": "New Holland SIMBA 20",
+      "quote": "Superb compact tractor. Best decision for inter-cultivation inside narrow orchard paths. Fits perfectly between rows.",
+      "quoteHi": "संतरा बगीचे के संकरे रास्तों में काम करने के लिए बेहतरीन छोटा ट्रैक्टर है। दो कतारों के बीच आसानी से घूम जाता है।",
+      "imageUrl": ""
     }
   ]
 }
