@@ -5,7 +5,6 @@ import { SiteContent } from "@mp-auto/content";
 import LanguageSelector from "./LanguageSelector";
 import TractorCard from "./TractorCard";
 import StickyBottomNav from "./StickyBottomNav";
-import { speakText, stopSpeaking } from "./AudioPlayer";
 import EMICalculator from "./EMICalculator";
 
 interface FarmerPortalProps {
@@ -25,14 +24,8 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
   const { contact, translations, tractors } = initialContent;
   const t = translations[lang];
 
-  // Voice greeting read-aloud
-  const handlePlayGreeting = () => {
-    speakText(t.speakIntro, lang);
-  };
-
-  const handleStopGreeting = () => {
-    stopSpeaking();
-  };
+  const displayPhone = contact.phone.replace("+91", "").replace(/^91/, "");
+  const displayWhatsapp = contact.whatsapp.replace("+91", "").replace(/^91/, "");
 
   const cleanedWhatsapp = contact.whatsapp.replace(/[^0-9]/g, "");
   const defaultText = lang === 'hi'
@@ -107,32 +100,14 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
             {t.heroSubtitle}
           </p>
 
-          {/* Audio Intro Trigger */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
-            <button
-              onClick={handlePlayGreeting}
-              className="flex items-center justify-center gap-2 px-6 py-4 bg-white text-[#0051BA] hover:bg-slate-100 font-extrabold rounded-2xl shadow-lg hover-scale cursor-pointer text-lg"
-            >
-              <span className="text-2xl">🔊</span>
-              <span>{t.speakText}</span>
-            </button>
-            <button
-              onClick={handleStopGreeting}
-              className="flex items-center justify-center p-4 bg-red-500/20 text-white hover:bg-red-500 hover:text-white font-extrabold rounded-2xl cursor-pointer"
-              title={lang === 'hi' ? "आवाज़ बंद करें" : "Stop Audio"}
-            >
-              <span className="text-xl">🛑</span>
-            </button>
-          </div>
-
           {/* Desktop Contact CTAs */}
-          <div className="hidden md:flex items-center justify-center gap-4">
+          <div className="hidden md:flex items-center justify-center gap-4 mb-8">
             <a
               href={`tel:${contact.phone}`}
               className="flex items-center gap-3 px-8 py-4 bg-white text-[#0051BA] font-black rounded-2xl shadow-md hover:bg-slate-100 transition-colors text-lg"
             >
               <span className="text-xl">📞</span>
-              <span>{t.callNow} — {contact.phone.replace(/[^0-9]/g, '')}</span>
+              <span>{t.callNow} — {displayPhone}</span>
             </a>
             <a
               href={whatsappUrl}
@@ -193,8 +168,8 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
 
           <p className="text-center text-xs text-slate-400 font-medium pt-2">
             {lang === 'hi'
-              ? `* कीमतें अनुमानित एक्स-शोरूम हैं। सटीक कीमत और ऑफ़र के लिए ${contact.phone.replace(/[^0-9]/g, '')} पर कॉल करें।`
-              : `* Prices shown are approximate ex-showroom. Call ${contact.phone.replace(/[^0-9]/g, '')} for exact pricing, offers & EMI options.`}
+              ? `* कीमतें अनुमानित एक्स-शोरूम हैं। सटीक कीमत और ऑफ़र के लिए ${displayPhone} पर कॉल करें।`
+              : `* Prices shown are approximate ex-showroom. Call ${displayPhone} for exact pricing, offers & EMI options.`}
           </p>
         </section>
 
@@ -429,7 +404,7 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
                     {lang === 'hi' ? 'माँ पीताम्बरा ऑटोमोबाइल्स शोरूम' : 'Maa Pitambara Automobiles Showroom'}
                   </h3>
                   <p className="text-sm text-slate-200 font-medium mt-1">
-                    {lang === 'hi' ? 'बायपास रोड, बस स्टैंड के पास, शाजापुर (म.प्र.)' : 'Bypass Road, Near Bus Stand, Shajapur (M.P.)'}
+                    {lang === 'hi' ? 'ग्राउंड फ्लोर, आगरा - मुंबई हाईवे, ए वन टोल कांटे के सामने, बरवाल' : 'Ground Floor, Agra - Mumbai Hwy, opposite A One Toll Kaate, Barwal'}
                   </p>
                 </div>
               </div>
@@ -473,11 +448,11 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-sm font-semibold py-1.5 border-b border-slate-100">
                     <span className="text-slate-500">{lang === 'hi' ? "फ़ोन नंबर" : "Calling Phone"}</span>
-                    <a href={`tel:${contact.phone}`} className="text-[#0051BA] font-black">{contact.phone.replace(/[^0-9]/g, '')}</a>
+                    <a href={`tel:${contact.phone}`} className="text-[#0051BA] font-black">{displayPhone}</a>
                   </div>
                   <div className="flex justify-between items-center text-sm font-semibold py-1.5 border-b border-slate-100">
                     <span className="text-slate-500">{lang === 'hi' ? "व्हाट्सएप नंबर" : "WhatsApp"}</span>
-                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="text-[#25D366] font-black">{contact.whatsapp.replace(/[^0-9]/g, '')}</a>
+                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="text-[#25D366] font-black">{displayWhatsapp}</a>
                   </div>
                   <div className="flex justify-between items-center text-sm font-semibold py-1.5">
                     <span className="text-slate-500">{lang === 'hi' ? "डीलर कोड" : "Dealer Code"}</span>
@@ -504,12 +479,8 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
                 </h3>
                 <div className="space-y-2 text-sm text-slate-600 font-semibold">
                   <div className="flex justify-between py-1.5 border-b border-slate-100">
-                    <span>{lang === 'hi' ? "सोमवार - शनिवार" : "Mon - Sat"}</span>
+                    <span>{lang === 'hi' ? "सोमवार - रविवार (सभी 7 दिन)" : "Mon - Sun (All 7 Days)"}</span>
                     <span className="text-slate-800 font-bold">09:00 AM - 07:00 PM</span>
-                  </div>
-                  <div className="flex justify-between py-1.5 border-b border-slate-100">
-                    <span>{lang === 'hi' ? "रविवार" : "Sunday"}</span>
-                    <span className="text-red-500 font-bold">{lang === 'hi' ? "बंद रहेगा" : "Closed"}</span>
                   </div>
                   <div className="flex justify-between py-1.5">
                     <span>{lang === 'hi' ? "इमरजेंसी सर्विस" : "Emergency Service"}</span>
@@ -517,6 +488,7 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
                   </div>
                 </div>
               </div>
+
               <div className="pt-6">
                 <a
                   href={whatsappUrl}
@@ -582,8 +554,8 @@ export default function FarmerPortal({ initialContent }: FarmerPortalProps) {
             {/* Contact */}
             <div className="space-y-2">
               <div className="text-sm font-bold text-white uppercase tracking-wider">{lang === 'hi' ? 'संपर्क करें' : 'Contact Us'}</div>
-              <a href={`tel:${contact.phone}`} className="block text-sm text-slate-400 hover:text-white transition-colors">📞 {contact.phone.replace(/[^0-9]/g, '')}</a>
-              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="block text-sm text-slate-400 hover:text-[#25D366] transition-colors">💬 WhatsApp: {contact.whatsapp.replace(/[^0-9]/g, '')}</a>
+              <a href={`tel:${contact.phone}`} className="block text-sm text-slate-400 hover:text-white transition-colors">📞 {displayPhone}</a>
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="block text-sm text-slate-400 hover:text-[#25D366] transition-colors">💬 WhatsApp: {displayWhatsapp}</a>
             </div>
           </div>
           <div className="border-t border-slate-800 pt-4 text-center">
